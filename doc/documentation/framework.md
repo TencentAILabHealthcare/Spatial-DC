@@ -3,7 +3,7 @@
 The framework of Spatial-DC, is described below.
 
 <p align="center">
-  <img width="50%" src=framework.jpg>
+  <img width="80%" src=framework.jpg>
 </p>
 
 <p align="center"><strong>The framework of Spatial-DC. </strong></p>
