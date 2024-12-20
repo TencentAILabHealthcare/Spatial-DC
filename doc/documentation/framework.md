@@ -3,7 +3,7 @@
 The framework of Spatial-DC, is described below.
 
 <p align="center">
-  <img width="80%" src=framework.jpg>
+  <img width="70%" src=framework.jpg>
 </p>
 
 <p align="center"><strong>The framework of Spatial-DC. </strong></p>
@@ -32,5 +32,3 @@ Once trained, the model produces refined prediction **Y** from the classifier **
 - **D-E/D-D**: Represents the encoder and decoder architecture of the autoencoder
 - **G-E/G-D**: Represents the encoder and decoder architecture of the VGAE
 ```
-
-This Markdown formatting should help clarify the structure and content of the Spatial-DC framework.
