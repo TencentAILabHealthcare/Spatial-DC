@@ -31,4 +31,3 @@ Once trained, the model produces refined prediction **Y** from the classifier **
 - **n**: The number of spots from spatial proteomics **SEXP**
 - **D-E/D-D**: Represents the encoder and decoder architecture of the autoencoder
 - **G-E/G-D**: Represents the encoder and decoder architecture of the VGAE
-```
