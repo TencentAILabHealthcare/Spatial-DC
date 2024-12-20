@@ -8,7 +8,7 @@
 <p align="center"><strong>A schematic graph for Spatial-DC (left) and subsequently downstream applications (right). </strong></p>
 
 ## Tutorial
-The details of how to run Spatial-DC are provided [Tutorials]
+The details of how to run Spatial-DC are provided [Tutorial](doc/index.md).
 
 ## Questions
 If you have any suggestions/ideas for Spatial-DC or have issues trying to use it, you can contact us at liy2020@mail.sustech.edu.cn.
