@@ -1,6 +1,6 @@
 
 import sys
-from Spatial_DC import SpatialDC
+from Spatial_DC_beta import SpatialDC
 
 import scanpy as sc
 import  numpy as np
