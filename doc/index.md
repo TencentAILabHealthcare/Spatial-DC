@@ -4,7 +4,7 @@ Welcome to the Spatial-*DC* Usage Guide! This guide is designed to help you quic
 
 ## Navigation
 
-- **[Framework of Spatial-DC](#framework-of-spatial-dc)**
+- **[Framework of Spatial-DC](documentation/framework.md)**
   - An overview of Spatial-DC's fundamental architecture, core components, and working principles.
 
 - **[Downstream Applications](#downstream-applications)**
