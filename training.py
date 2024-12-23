@@ -65,8 +65,8 @@ for dataset in datasets:
 
     sc.pp.normalize_total(sc_adata)
     sc.pp.normalize_total(sp_adata)
-    model_dir = f"output/{dataset}/model/"
-    model_path = f"{model_dir}/trained_model.pt"
+    model_dir = f"trained_model/{dataset}/"
+    model_path = f"{model_dir}/model_epoch200.pt" # set this to the trained model path
 
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)           
