@@ -1,11 +1,3 @@
-import sys
-from Spatial_DC_beta import SpatialDC
-import scanpy as sc
-import  numpy as np
-import os
-
-import time
-start_time = time.time()
 
 
 # Load necessary packages
@@ -24,7 +16,6 @@ from scipy import stats
 from sklearn.preprocessing import MinMaxScaler,StandardScaler
 import warnings
 warnings.filterwarnings("ignore")
-
 
 # set the working directory
 os.chdir("./")
@@ -65,7 +56,6 @@ for dataset in datasets:
     else:
         raise ValueError('Invalid dataset name')
         
-
     sc_adata = sc.read_h5ad(sc_file_path)
     sp_adata = sc.read_h5ad(sp_file_path)
 
@@ -82,7 +72,7 @@ for dataset in datasets:
         os.makedirs(model_dir)           
 
     # Construct the SpatialDC object    
-    spatial_dc = SpatialDC(sc_adata=sc_adata, sp_adata=sp_adata, celltype_key=celltype_key, reference_data_type="single_cell", dataset_type="synthetic") 
+    spatial_dc = SpatialDC(sc_adata=sc_adata, sp_adata=sp_adata, celltype_key=celltype_key, reference_data_type="single_cell", dataset_type=dataset_type) 
 
     # Set the parameters for training the distribution model
     spatial_dc.setup_distribution_model(spot_num=10000, epochs=200, batch_size=128, lr=0.001)
@@ -90,8 +80,4 @@ for dataset in datasets:
 
     # save the trained model
     spatial_dc.save_distribution_model(save_model_path = model_path)
-    
-    
-end_time = time.time()
-print("Total time consumption: seconds")
 print(end_time - start_time)
