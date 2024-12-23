@@ -1,77 +1,62 @@
-
-import sys
-from Spatial_DC_beta import SpatialDC
-
-import scanpy as sc
-import  numpy as np
+# Load necessary packages
 import os
+import sys
+import pandas as pd
+import numpy as np
+import anndata as ad
+import scanpy as sc
+from scipy.sparse import csr_matrix
+from scipy.stats import pearsonr,spearmanr
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+import matplotlib as mat
+from scipy import stats
+from sklearn.preprocessing import MinMaxScaler,StandardScaler
+import warnings
+warnings.filterwarnings("ignore")
 
 import time
 start_time = time.time()
 
-def run_SpatialDC(sc_adata, sp_adata, celltype_key,output_file_path):
-    if not os.path.exists(model_path):        
-        exit() # should set correct path of model
-   
-    spatial_dc = SpatialDC(sc_adata=sc_adata, sp_adata=sp_adata) 
-    spatial_dc.load_distribution_model(load_model_path = model_path) # Load trained DIS model
+# set the working directory
+os.chdir("./")
+sys.path.append("Spatial_DC")
 
-    # predict intermediate results with transfer model
-    pred_sp_adata = spatial_dc.transfer_distribution_model()
-    pred_sp_adata.uns["cellperc_initial"].to_csv(output_file_path + "_initial.csv")
-    pred_sp_adata.write_h5ad(output_file_path + "_initial.h5ad")
+from Spatial_DC import SpatialDC
+SpatialDC.get_SpatialDC_version() # 1.0.0
 
-    purified_sp_adata = spatial_dc.initial_purify_spots(norm=True, spatial_info=False)
-    purified_sp_adata.write_h5ad(output_file_path + "_initial_norm.h5ad")
+dataset_dir = "datasets"
+model_dir = "trained_model"
+output_dir = "output"
 
-    purified_sp_adata = spatial_dc.initial_purify_spots(norm=False, spatial_info=False)
-    purified_sp_adata.write_h5ad(output_file_path + "_initial_not_norm.h5ad")
+datasets = ["NSCLC", "human_palatine_tonsil", "mouse_brain_coronal", "mouse_PDAC"]
 
-    # refined intermediate results with self-supervisd model
-    spatial_dc.setup_reconstruction_model(k_graph=30, epochs=200, w_cls=25, w_rec=25) # With trained DIS model, users can transfer it with register spatial proteomics data.    
-    reconstruct_sp_adata = spatial_dc.reconstruct()
-    reconstruct_sp_adata.write_h5ad(output_file_path + "_reconstruct.h5ad")
-
-    purified_sp_adata = spatial_dc.purify_spots(norm=True, spatial_info=True)
-    purified_sp_adata.write_h5ad(output_file_path + "_reconstruct_norm.h5ad")
-
-    purified_sp_adata = spatial_dc.purify_spots(norm=False, spatial_info=True)
-    purified_sp_adata.write_h5ad(output_file_path + "_reconstruct_not_norm.h5ad")
-
-    reconstruct_sp_adata.uns["cellperc_reconstruct"].to_csv(output_file_path + "_reconstruct.csv")
-
-
-# ------------------------------------------------------------
-# deconvolution of synthetic, public and in-house spatial proteomics data
-os.chdir("")
-datasets = ["NSCLC", "HumanTonsil", "MouseBrain", "MousePDAC"]
-
-method = "SpatialDC"
+# Begin train
 celltype_key = "celltype"
+reference_data_type = ""
+dataset_type = ""
 
 for dataset in datasets:
-    print(f"============Dataset: {dataset}==============")
+    print(f"Dataset: {dataset}")
+    # Set the file path and datasets type
     if dataset == "NSCLC":
-        sc_file_path = f"01_data/{dataset}/scp2021_1003_Reference.h5ad"        
-        sp_file_path = f"01_data/{dataset}/Simu_seed0_cells10_noise0.h5ad"
-    elif dataset == "HumanTonsil":
-        sc_file_path = f"01_data/{dataset}/HumanTonsil_reference_ct19_46_intersected.h5ad"        
-        sp_file_path = f"01_data/{dataset}/HumanTonsil_Spatial_2492_intersected.h5ad"
-    elif dataset == "MouseBrain":
-        sc_file_path = f"01_data/{dataset}/MouseBrain2022_ct4_4351.h5ad"        
-        sp_file_path = f"01_data/{dataset}/MouseBrain2022_spot208_4351.h5ad"
-    elif dataset == "MousePDAC":
-        sc_file_path = f"01_data/{dataset}/MousePDAC2023_ct10_2837.h5ad"        
-        sp_file_path = f"01_data/{dataset}/MousePDAC2023_spot108_2837.h5ad"
+        sc_file_path = f"{dataset_dir}/{dataset}/synthetic_noise_levels/reference_proteomics_noise/reference_noise0.h5ad"        
+        sp_file_path = f"{dataset_dir}/{dataset}/synthetic_noise_levels/spatial_proteomics_spotsize_noise/spatial_spotsize200_noise0.h5ad"
+        dataset_type = "synthetic"
+    else:
+        sc_file_path = f"{dataset_dir}/{dataset}/intersected_reference_proteomics.h5ad"        
+        sp_file_path = f"{dataset_dir}/{dataset}/intersected_spatial_proteomics.h5ad"
+        dataset_type = "real"
 
-    output_dir = f"03_benchmark_methods/{dataset}/{method}/"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)   
-
-    model_dir = f"{output_dir}/{method}_model/"
-    model_path = f"{output_dir}/{method}_model/model_epochs200.pt"
-
-    output_file_path = f"{output_dir}/{method}"            
+    # Set the reference data type
+    if dataset in ["human_palatine_tonsil", "NSCLC"]:
+        reference_data_type = "single_cell"
+        
+    elif dataset in ["mouse_brain_coronal", "mouse_PDAC"]:
+        reference_data_type = "single_cell_type"
+    else:
+        raise ValueError('Invalid dataset name')
+        
 
     sc_adata = sc.read_h5ad(sc_file_path)
     sp_adata = sc.read_h5ad(sp_file_path)
@@ -82,9 +67,26 @@ for dataset in datasets:
 
     sc.pp.normalize_total(sc_adata)
     sc.pp.normalize_total(sp_adata)
-    run_SpatialDC(sc_adata=sc_adata, sp_adata=sp_adata, celltype_key=celltype_key,output_file_path=output_file_path)
+    model_dir = f"output/{dataset}/model/"
+    model_path = f"{model_dir}/trained_model.pt"
 
+    # Construct the SpatialDC object    
+    spatial_dc = SpatialDC(sc_adata=sc_adata, sp_adata=sp_adata, celltype_key=celltype_key, reference_data_type="single_cell", dataset_type="synthetic") 
+    spatial_dc.load_distribution_model(load_model_path = model_path)    
 
+    spatial_dc.transfer_distribution_model() # inference stage
+
+    # Set the parameters and train the self-supvervised model
+    spatial_dc.setup_self_supervised_model(k_graph=30, epochs=200)
+    spatial_dc.train_self_supervised_model()
+    spatial_dc.inference_self_supervised_model()
+
+    # Output-1, cell-type composition
+    pred_ct = spatial_dc.sp_adata.uns["cellperc_refined"] # Obtain the predicted cell-type composition
+
+    # Output-2, reconstructed single-cell data
+    rec_scp_adata = spatial_dc.reconstruction(norm=True)    
+    
 end_time = time.time()
 print("Total time consumption: seconds")
 print(end_time - start_time)
