@@ -71,7 +71,7 @@ for dataset in datasets:
     model_path = f"{model_dir}/trained_model.pt"
 
     # Construct the SpatialDC object    
-    spatial_dc = SpatialDC(sc_adata=sc_adata, sp_adata=sp_adata, celltype_key=celltype_key, reference_data_type="single_cell", dataset_type=dataset_type) 
+    spatial_dc = SpatialDC(sc_adata=sc_adata, sp_adata=sp_adata, celltype_key=celltype_key, reference_data_type=reference_data_type, dataset_type=dataset_type) 
     spatial_dc.load_distribution_model(load_model_path = model_path)    
 
     spatial_dc.transfer_distribution_model() # inference stage
