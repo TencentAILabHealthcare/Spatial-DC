@@ -67,8 +67,8 @@ for dataset in datasets:
 
     sc.pp.normalize_total(sc_adata)
     sc.pp.normalize_total(sp_adata)
-    model_dir = f"output/{dataset}/model/"
-    model_path = f"{model_dir}/trained_model.pt"
+    model_dir = f"trained_model/{dataset}/"
+    model_path = f"{model_dir}/model_epoch200.pt" # set this to the trained model path
 
     # Construct the SpatialDC object    
     spatial_dc = SpatialDC(sc_adata=sc_adata, sp_adata=sp_adata, celltype_key=celltype_key, reference_data_type=reference_data_type, dataset_type=dataset_type) 
