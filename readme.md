@@ -1,4 +1,4 @@
-# Spatial-DC: a robust deep learning-based method for deconvolution of spatial proteomics
+# Digital decoding tissue microenvironment heterogeneity from spatial proteomics through graph-enhanced transfer learning
 [![python >3.9.20](https://img.shields.io/badge/python-3.9.20-brightgreen)](https://www.python.org/)
 
 <p align="center">
